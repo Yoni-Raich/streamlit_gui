@@ -193,7 +193,7 @@ def run_mapping_process(src_path):
     with st.spinner('Running mapping process...'):
         status_placeholder = st.empty()
         mapping_agent = MappingAgent(model_name="azure", src_path=src_path)
-        for status in mapping_agent.run_mapping_process(generate_summery = False):
+        for status in mapping_agent.run_mapping_process(generate_summery=True):
             print(status)
             status_placeholder.text(status)
         status_placeholder.text("All files processed!")
