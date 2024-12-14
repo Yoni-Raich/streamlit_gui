@@ -48,11 +48,12 @@ CodeAce GUI provides an intuitive interface for the CodeAce package, enabling us
 
 1. **Using Installation Script**
 
-   ```powershell
-   .\install.ps1
+   ```bash
+   python install.py
    ```
 
    The script will:
+   - Check and request required environment variables
    - Clone the repository
    - Create a virtual environment
    - Install required dependencies
@@ -62,9 +63,11 @@ CodeAce GUI provides an intuitive interface for the CodeAce package, enabling us
 
    After installation, run the application using:
 
-   ```powershell
-   .\run.ps1
+   ```bash
+   python run.py
    ```
+
+   Or if prompted during installation, you can choose to run it immediately.
 
 ## Usage
 
