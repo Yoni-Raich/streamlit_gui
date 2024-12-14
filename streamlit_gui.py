@@ -159,13 +159,13 @@ def process_user_query(messages):
     pre_response = ""
     with st.spinner('Finding relevant files...'):
         relevant_files = st.session_state.core_agent.find_relevant_files(user_input)
-        st.write(f"📁 Found relevant files:\n\n {'\n'.join(relevant_files)}\n\n")
+        st.markdown(f"📁 Found relevant files:\n\n{'\n'.join(relevant_files)}\n\n")
 
     if st.session_state.use_extra_source and st.session_state.extra_src_path:
         pre_agent = CoreAgent(model_name="azure", src_path=st.session_state.extra_src_path)
         with st.spinner('Finding relevant dependencies files...'):
             relevant_dependencies_files = pre_agent.find_relevant_files(user_input)
-            st.write(f"📁 Found relevant dependencies files:\n\n {'\n'.join(relevant_dependencies_files)}\n\n")
+            st.markdown(f"📁 Found relevant dependencies files:\n\n {'\n'.join(relevant_dependencies_files)}\n\n")
         
         with st.spinner('Generating predictions from additional source...'):
             pre_response = pre_agent.process_dependencies_query(user_input, relevant_dependencies_files)
