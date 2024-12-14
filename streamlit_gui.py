@@ -3,6 +3,8 @@ import os
 import json
 from datetime import datetime
 from codeace import MappingAgent, CoreAgent, LLMManager
+import git
+from typing import Tuple
 
 # Constants
 ASSISTANT_AVATAR_PATH = 'https://imgur.com/FgmmmH7.png'
@@ -49,6 +51,57 @@ if 'extra_context_select' not in st.session_state:
     st.session_state.extra_context_select = []
 if 'improve_prompt' not in st.session_state:
     st.session_state.improve_prompt = False
+def is_github_url(path: str) -> bool:
+    """Check if the given path is a GitHub repository URL."""
+    return path.startswith(("http://github.com/", "https://github.com/"))
+
+def clone_github_repo(repo_url: str) -> Tuple[bool, str, str]:
+    """
+    Clone a GitHub repository to the repos directory.
+    Returns: (success, message, repo_path)
+    """
+    try:
+        repos_dir = os.path.join(os.path.dirname(__file__), "repos")
+        os.makedirs(repos_dir, exist_ok=True)
+        
+        repo_name = repo_url.split("/")[-1].replace(".git", "")
+        repo_path = os.path.join(repos_dir, repo_name)
+        
+        # Check if directory already exists and is not empty
+        if os.path.exists(repo_path) and os.listdir(repo_path):
+            # Directory exists and is not empty - return success since we already have it
+            print(f"Repository already exists at {repo_path}")
+            return True, f"Repository already exists at {repo_path}", repo_path
+        
+        git.Repo.clone_from(repo_url, repo_path)
+        print(f"Repository cloned successfully to {repo_path}")
+        return True, f"Repository cloned successfully to {repo_path}", repo_path
+    except Exception as e:
+        return False, f"Error cloning repository: {str(e)}", ""
+
+def add_source_path(path: str) -> Tuple[bool, str]:
+    """
+    Add a new source path to saved paths.
+    Returns: (success, message)
+    """
+    if path in st.session_state.saved_paths:
+        return False, "Path already exists in saved sources"
+    
+    if is_github_url(path):
+        with st.spinner('Cloning GitHub repository...'):
+            success, message, repo_path = clone_github_repo(path)
+            if success:
+                st.session_state.saved_paths.append(repo_path)
+                save_paths(st.session_state.saved_paths)
+                return True, message
+            return False, message
+    
+    if os.path.isdir(path):
+        st.session_state.saved_paths.append(path)
+        save_paths(st.session_state.saved_paths)
+        return True, f"Added new source path: {path}"
+    
+    return False, "Invalid directory path"
 
 def load_paths():
     """Load saved paths from JSON file"""
@@ -183,6 +236,13 @@ with st.sidebar:
     with st.expander("Source Management", expanded=True):
         # Add new source path
         new_path = st.text_input("Add New Source Directory Path")
+        if new_path:
+            success, message = add_source_path(new_path)
+            if success:
+                st.success(message)
+                st.rerun()
+            else:
+                st.error(message)
         
         # Primary source selection
         if st.session_state.saved_paths:
@@ -304,3 +364,4 @@ if prompt := st.chat_input("What would you like to know about the code?"):
         st.markdown(response)
     st.session_state.messages.append({"role": "assistant", "content": response})
     # = None
+
