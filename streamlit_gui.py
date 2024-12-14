@@ -136,9 +136,14 @@ def process_user_query(messages):
 
 def run_mapping_process(src_path):
     """Run the mapping process for the selected source"""
+    
     with st.spinner('Running mapping process...'):
+        status_placeholder = st.empty()
         mapping_agent = MappingAgent(model_name="azure", src_path=src_path)
-        mapping_agent.run_mapping_process(generate_summery = False)
+        for status in mapping_agent.run_mapping_process(generate_summery = False):
+            print(status)
+            status_placeholder.text(status)
+        status_placeholder.text("All files processed!")
         st.session_state.core_agent = CoreAgent(model_name="azure", src_path=src_path)
         st.session_state.mapping_done = True
         return True
