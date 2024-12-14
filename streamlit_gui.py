@@ -235,7 +235,7 @@ with st.sidebar:
     # Source Management
     with st.expander("Source Management", expanded=True):
         # Add new source path
-        new_path = st.text_input("Add New Source Directory Path")
+        new_path = st.text_input("Add New Source Directory or GitHub repo URL")
         if new_path:
             success, message = add_source_path(new_path)
             if success:
